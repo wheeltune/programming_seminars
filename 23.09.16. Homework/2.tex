@@ -1,0 +1,172 @@
+\documentclass[12pt,letterpaper]{article}
+\usepackage[spanish]{babel} % Para caracteres en español
+\usepackage[utf8]{inputenc} % Para caracteres en español
+\spanishdecimal{.}
+\usepackage{amsmath,amsthm,amsfonts,amssymb,amscd}
+\usepackage{multirow,booktabs}
+\usepackage[table]{xcolor}
+\usepackage{fullpage}
+\usepackage{lastpage}
+\usepackage{enumitem}
+\usepackage{fancyhdr}
+\usepackage{mathrsfs}
+\usepackage{wrapfig}
+\usepackage{setspace}
+\usepackage{calc}
+\usepackage{multicol}
+\usepackage{cancel}
+\usepackage[retainorgcmds]{IEEEtrantools}
+\usepackage[margin=3cm]{geometry}
+\usepackage{floatrow}
+\usepackage{pst-plot}
+\usepackage{amsfonts,amssymb,amsthm,mathtools} % AMS
+\usepackage{amsmath}
+\usepackage{mathtools}
+\usepackage{pgf,tikz}
+\usepackage{mathrsfs}
+\usetikzlibrary{arrows}
+\usepackage{letltxmacro}
+\usepackage{icomma} % "Умная" запятая: $0,2$ --- число, $0, 2$ --- перечисление
+\usepackage{epstopdf}
+\usepackage{dcolumn}
+\usepackage{epsfig}
+\usepackage{nccfoots}
+\usepackage{pst-grad} % For gradients
+\usepackage{pst-plot} % For axes
+\usepackage[space]{grffile} % For spaces in paths
+\usepackage{etoolbox} % For spaces in paths
+\usepackage{ifxetex}
+\ifxetex
+    %% xelatex
+    \usepackage{polyglossia}                       %% загружает пакет многоязыковой вёрстки
+    \setdefaultlanguage[spelling=modern]{russian}  %% устанавливает главный язык документа
+    \setotherlanguage{english}                     %% объявляет второй язык документа
+    \defaultfontfeatures{Ligatures={TeX}}          %% свойства шрифтов по умолчанию
+    \setmainfont[Ligatures={TeX}]{CMU Serif}       %% задаёт основной шрифт документа
+    \setsansfont{CMU Sans Serif}                   %% задаёт шрифт без засечек
+    \setmonofont{CMU Typewriter Text}              %% задаёт моноширинный шрифт
+    \usepackage{soul}
+\else
+    %% pdflatex
+    \usepackage[utf8]{inputenc}           %% Кодировка исходного текста
+    \usepackage[T2A]{fontenc}             %% Внутренняя кодировка шрифта
+    \usepackage[english,russian]{babel}   %% Поддержка русского текста
+    \usepackage{cmap}                     %% Поиск русских  слов в pdf
+    \usepackage{soulutf8}
+\fi  
+\usepackage{graphicx}
+\graphicspath{{images/}}
+\DeclareGraphicsExtensions{.pdf,.png,.jpg}
+
+\everymath{\displaystyle}
+
+%% Шрифты
+\usepackage{euscript}	 % Шрифт Евклид
+\usepackage{mathrsfs} % Красивый матшрифт
+
+%% Свои команды
+\DeclareMathOperator{\sgn}{\mathop{sgn}}
+
+%% Перенос знаков в формулах (по Львовскому)
+\newcommand*{\nl}[1]{#1\nobreak\discretionary{}
+{\hbox{$\mathsurround=0pt #1$}}{}}
+
+\makeatletter
+\def\clearwf{\par{\count@\c@WF@wrappedlines\zz}\par}
+
+\def\zz{{%
+\ifnum\count@>\@ne
+\noindent\mbox{}\\%
+\advance\count@\m@ne
+\expandafter\zz
+\else
+\ifhmode\unskip\unpenalty\fi
+\fi}}
+
+\makeatother
+
+\makeatletter
+\let\oldr@@t\r@@t
+\def\r@@t#1#2{%
+\setbox0=\hbox{$\oldr@@t#1{#2\,}$}\dimen0=\ht0
+\advance\dimen0-0.2\ht0
+\setbox2=\hbox{\vrule height\ht0 depth -\dimen0}%
+{\box0\lower0.4pt\box2}}
+\LetLtxMacro{\oldsqrt}{\sqrt}
+\renewcommand*{\sqrt}[2][\ ]{\oldsqrt[#1]{#2} }
+\makeatother
+
+\newcommand{\br}[1]{\left(#1\right)}
+\newcommand{\Br}[1]{\left[#1\right]}
+\newcommand{\BR}[1]{\left\{#1\right\}}
+\newcommand{\abs}[1]{\left|#1\right|}
+\newcommand{\arcctan}{\mathrm{arcctan}}
+\newcommand{\arcth}{\mathrm{arcth}}
+\newcommand{\divdots}{\, \vdots \,}
+\newcommand{\ndivdots}{\, \not{\vdots} \,}
+\newcommand{\nequiv}{\not\equiv}
+\newcommand{\ind}{\mathrm{ind}}
+\newcommand{\ord}{\mathrm{ord}}
+\newcommand{\ulim}{\operatornamewithlimits{\overline{\lim}}}
+\newcommand{\dlim}{\operatornamewithlimits{\underline{\lim}}}
+\renewcommand{\d}[1]{\; \mathrm{d}#1}
+
+
+%%% Работа с картинками
+\usepackage{graphicx}  % Для вставки рисунков
+\graphicspath{{images/}{images2/}}  % папки с картинками
+\setlength\fboxsep{3pt} % Отступ рамки \fbox{} от рисунка
+\setlength\fboxrule{1pt} % Толщина линий рамки \fbox{}
+\usepackage{wrapfig} % Обтекание рисунков и таблиц текстом
+
+%%% Работа с таблицами
+\usepackage{array,tabularx,tabulary,booktabs} % Дополнительная работа с таблицами
+\usepackage{longtable}  % Длинные таблицы
+\usepackage{multirow} % Слияние строк в таблице
+
+
+\newlength{\tabcont}
+\setlength{\parindent}{0.0in}
+\setlength{\parskip}{0.05in}
+
+
+\title{}
+
+
+% Editar como se necesite para cambiar los títulos
+\newcommand\yourname{Крохалев Арсений} % <-- nombre del curso
+\newcommand\course{Программирование}  % <-- semestre
+\newcommand\workname{Идеальное паросочетание}         % <-- numero o subtítulo de la tarea
+\newcommand{\vect}[1]{\overline{#1}} % si se quiere cambiar a vector con flecha solo hay que sustituir boldsymbol por vec.
+\newcommand{\norm}[1]{\left\lVert#1\right\rVert}    % para denotar la norma euclidiana
+\theoremstyle{definition}
+\newtheorem{defn}{Definición}
+\newtheorem{reg}{Regla}
+\newtheorem{ejer}{EJERCICIO}
+\pagestyle{fancyplain}
+\headheight 32pt
+\lhead{\textbf{\yourname}}
+\chead{\textbf{\Large \workname \\}}
+\rhead{\textbf{\course}}
+\cfoot{Страница \thepage \hspace{1pt} из \pageref{LastPage} \vspace{3mm} \\ \footnotesize \textcolor{gray}{}}
+\textheight 580pt
+\headsep 10pt
+\footskip 40pt
+\topmargin = 7pt
+
+\begin{document} 
+Пусть дан двудольный граф с долями $L$ и $R$ (в первой доле $l$ вершин) и для любого набора $A$ из левой доли выполняется $\abs{A} \leq \abs{N\br{A}}$.
+
+Построим из этого графа сеть, для этого ориентируем все ребра из $L$ в $R$, создадим $2$ фиктивные вершины $s$ и $t$. Проведем ребра из $s$ во все вершины $L$, а из всех вершин $R$ в $t$. И при этом у всех ребер будет пропускная способность $1$. Тогда максимальный поток в такой сети будет означать количество пар в максимальном паросочетании. По теореме Форда — Фалкерсона максимальный поток равен минимальному разрезу. Тогда докажем, что он равен $l$
+
+Во-первых очевидно, что он не может быть больше $n$ потому что взяв в первую часть разреза исток, а во вторую все остальные получим разрез $n$.
+
+Предположим, что у нас есть како-то разрез и пусть он охватывает $p$ вершин первой доли и $q$ второй, тогда рассмотрим $2$ случая:
+\begin{itemize}
+	\item \underline{$q \geq p$} Тогда ребер исходящих из $s$ и переходящих через разрез $n - p$, а входящий в $t$ и переходящих через разрез $q$. Итого $n - p + q \geq n$
+	\item \underline{$q < p$} Тогда исходящих из $s$ по-прежнему $n - p$, входящих в $t$ через разрез $q$, а так как $\abs{l} \leq \abs{N\br{l}}$, то есть еще не менее $p - q$ ребер из $L$ в $R$, пересекающие разрез. Итого $n - p + p - q + q = n$
+\end{itemize}
+
+Получаем, что разрез не меньше $n$, то есть равен $n$, что и требовалось доказать.
+	
+\end{document}
