@@ -1,3 +1,5 @@
+// РЕАЛИЗАЦИЯ ПРИ ПОМОЩИ УСЛОВНЫХ ПЕРЕМЕННЫХ
+
 #include <iostream>
 #include <atomic>
 #include <thread>
@@ -17,7 +19,7 @@ int main()
         [&lock]() {   
             while (1) {
                 sync_cond.wait (lock, [] {return centred.load(); });       // ждем если он уже смещен 
-                std::cout << "1: step(\"left\")\n";                        // исполняем нуждую функцию
+                std::cout << "1: step(\"left\")\n";                        // исполняем нужную функцию
                 centred.store (false);                                     // сдвигаем робота
                 sync_cond.notify_one();                                    // оповещаем о сдвиге
             }  
@@ -28,7 +30,7 @@ int main()
         [&lock]() {   
             while (1) {
                 sync_cond.wait (lock, [] {return !centred.load(); });      // ждем если он в центре
-                std::cout << "2: step(\"right\")\n";                       // исполняем нуждую функцию
+                std::cout << "2: step(\"right\")\n";                       // исполняем нужную функцию
                 centred.store (true);                                      // сдвигаем робота
                 sync_cond.notify_one();                                    // оповещаем о сдвиге
             }  
