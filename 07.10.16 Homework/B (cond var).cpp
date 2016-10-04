@@ -3,9 +3,11 @@
 #include <thread>
 #include <mutex>
 
-std::mutex mtx;   
+std::mutex mtx;                                                                 
 std::condition_variable sync_cond; 
-std::atomic<bool> centred;
+std::atomic<bool> centred;                                                // переменная, обозначающая находится ли робот в центре в данный момент 
+                                                                          // (бывает 2 положения false - смещен влево, true - никуда не смещен)
+
 
 int main() 
 {
@@ -14,10 +16,10 @@ int main()
     std::thread left_t (   
         [&lock]() {   
             while (1) {
-                sync_cond.wait (lock, [] {return centred.load(); });
-                std::cout << "1: step(\"left\")\n";
-                centred.store (false);
-                sync_cond.notify_one();
+                sync_cond.wait (lock, [] {return centred.load(); });       // ждем если он уже смещен 
+                std::cout << "1: step(\"left\")\n";                        // исполняем нуждую функцию
+                centred.store (false);                                     // сдвигаем робота
+                sync_cond.notify_one();                                    // оповещаем о сдвиге
             }  
         }   
     );  
@@ -25,10 +27,10 @@ int main()
     std::thread right_t (   
         [&lock]() {   
             while (1) {
-                sync_cond.wait (lock, [] {return !centred.load(); });
-                std::cout << "2: step(\"right\")\n";
-                centred.store (true);
-                sync_cond.notify_one();
+                sync_cond.wait (lock, [] {return !centred.load(); });      // ждем если он в центре
+                std::cout << "2: step(\"right\")\n";                       // исполняем нуждую функцию
+                centred.store (true);                                      // сдвигаем робота
+                sync_cond.notify_one();                                    // оповещаем о сдвиге
             }  
         }   
     );  
