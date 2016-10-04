@@ -5,7 +5,7 @@
 #include <algorithm>
 #include <cstddef>
 
-int INF = 1000000000;
+int INF = 100000000;
 
 class Network {
 private:
@@ -266,34 +266,33 @@ private:
 };
 
 int n, m;
+int nextFree = 0;
 
+std::vector<std::vector<int> > vToId;
+std::vector<std::pair<int, int> > idToV;
 std::vector<std::vector<int> > country;
 std::vector<bool> used;
-
-int getNumV (int i, int j) {
-    return i * m + j + 2;
-}
-
-std::pair<int, int> getVNum (int num) {
-    std::pair<int, int> ret;
-    ret.first = (num - 2) / m;
-    ret.second = num - 2 - m * ret.first;
-    return ret;
-}
+std::vector<bool> part;
 
 bool isExist (int i, int j) {
     return (i >= 0 && i < n && j >= 0 && j < m);
 }
 
+bool isNeed (int i, int j) {
+    if (isExist(i, j)) {
+        return country[i][j] > 0;
+    }
+    return false;
+}
+
 void findDfs (Network *network, int v) {
+    if (v != 0) {
+        part[v] = true;
+    }
+    // std::cout << v << "::";
     used[v] = 1;
     for (auto it = network->begin(v); it != network->end(v); ++it) {
-        //std::cout << v << ": " << "(" << it->to_ << ", " << it->flow_ << ", " << it->capasity_ << ") ";
-        if (it->isFull() && it->flow_ > 0) {
-            std::pair<int, int> to = getVNum (it->to_);
-            //std::cout << "[" << to.first << " " << to.second << "] ";
-            country[to.first][to.second] = 3;
-        } else if (!used[it->to_] && !it->isFull() && it->capasity_ > 0) {
+        if (!it->isFull() && !used[it->to_]) {
             findDfs (network, it->to_);
         }
     }
@@ -304,50 +303,79 @@ int main ()
     int x, y;
     std::cin >> n >> m;
     country.resize(n);
-    for (auto &c_i : country) {
-        c_i.resize(m, INF);
+    vToId.resize(n);
+    for (int i = 0; i < n; ++i) {
+        country[i].resize(m, INF);
+        vToId[i].resize(m);
     }
-    Network network(n * m + 2, 0, 1);
-    used.resize(n * m + 2);
+    Network network(2 * n * m + 2, nextFree, nextFree + 1);
+    nextFree += 2;
+    used.resize(2 * n * m + 2);
+    idToV.resize(2 * n * m + 2);
+    part.resize(2 * n * m + 2);
 
     int h, b;
     std::cin >> h >> b;
     for (int i = 0; i < h; ++i) {
         std::cin >> x >> y;
-        x--;y--;
-
+        x--; y--;
         country[x][y] = 0;
     }
 
     for (int i = 0; i < b; ++i) {
         std::cin >> x >> y;
         x--;y--;
-
         country[x][y] = 1;
     }
 
-    std::cin >> x >> y;
-    x--; y--;
-    network.addEdge (0, getNumV(x, y), INF);
+    for (int i = 0; i < n; ++i) {
+        for (int j = 0; j < m; ++j) {
+            vToId[i][j] = nextFree;
+            idToV[nextFree] = std::make_pair(i, j);
+            nextFree++;
+            if (country[i][j] == 1) {
+                idToV[nextFree] = std::make_pair(i, j);
+                nextFree++;
+            }
+        }
+    }
+
+    // printf("\n");
+    // for (int i = 0; i < n; ++i) {
+    //     for (int j = 0; j < m; ++j) {
+    //         printf("%2d ", vToId[i][j]);
+    //     }
+    //     printf("\n");
+    // }
 
     std::cin >> x >> y;
     x--; y--;
-    network.addEdge (getNumV(x, y), 1, INF);
+    network.addEdge (0, vToId[x][y], INF);
+
+    std::cin >> x >> y;
+    x--; y--;
+    network.addEdge (vToId[x][y], 1, INF);
 
     for (int i = 0; i < n; ++i) {
         for (int j = 0; j < m; ++j) {
             if (country[i][j] > 0) {
-                if (isExist (i - 1, j)) {
-                    network.addEdge (getNumV(i, j), getNumV(i - 1, j), country[i - 1][j]);
+                int id = vToId[i][j];
+                if (country[i][j] == 1) {
+                    network.addEdge (id, id + 1, 1);
+                    id++;
                 }
-                if (isExist (i + 1, j)) {
-                    network.addEdge (getNumV(i, j), getNumV(i + 1, j), country[i + 1][j]);
+
+                if (isNeed (i - 1, j)) {
+                    network.addEdge (id, vToId[i - 1][j], INF);
                 }
-                if (isExist (i, j - 1)) {
-                    network.addEdge (getNumV(i, j), getNumV(i, j - 1), country[i][j - 1]);
+                if (isNeed (i + 1, j)) {
+                    network.addEdge (id, vToId[i + 1][j], INF);
                 }
-                if (isExist (i, j + 1)) {
-                    network.addEdge (getNumV(i, j), getNumV(i, j + 1), country[i][j + 1]);
+                if (isNeed (i, j - 1)) {
+                    network.addEdge (id, vToId[i][j - 1], INF);
+                }
+                if (isNeed (i, j + 1)) {
+                    network.addEdge (id, vToId[i][j + 1], INF);
                 }
             } 
         }
@@ -358,9 +386,10 @@ int main ()
     } else {
         std::cout << network.getMaxFlow() << std::endl;
         findDfs (&network, 0);
+        // std::cout << std::endl;
         for (int i = 0; i < n; ++i) {
             for (int j = 0; j < m; ++j) {
-                if (country[i][j] == 3) {
+                if (country[i][j] == 1 && part[vToId[i][j]] == true && part[vToId[i][j] + 1] == false) {
                     std::cout << i + 1 << " " << j + 1 << std::endl;
                 }
             }
