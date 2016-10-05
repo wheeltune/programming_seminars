@@ -48,9 +48,11 @@ bool try_kuhn (int v) {
 
 void kuhn () {
     pairToRight.assign (n, -1);
+    used.assign (n, false);
     for (int v = 0; v < n; ++v) {
-        used.assign (n, false);
-        try_kuhn (v);
+        if (try_kuhn (v)) {
+            used.assign (n, false);
+        }
     }
 }
 
