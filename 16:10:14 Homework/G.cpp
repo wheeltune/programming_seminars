@@ -1,248 +1,214 @@
-#include <iostream>
-#include <algorithm>
-#include <vector>
-#include <queue>
+// #include <vector>
+// #include <algorithm>
+// #include <iostream>
 
-const int INF = 2 * 1000 * 1000 * 1000 + 1;
+// const int INF = 0x3fffffff;
 
+// struct Edge
+// {
+//     int to, back;           
+//     int flow, cap, cost; 
+//     int id;           
 
-struct Edge {
-    Edge (int from, int to, int capasity, int cost, int id) : from(from), to(to), capasity(capasity), cost(cost), flow(0), id(id) {}
-    int cost, flow, capasity, from, to, id;
-};
+//     Edge(int to, int back, int cap, int cost, int id) : to(to), back(back), flow(0), cap(cap), cost(cost), id(id) {}
+// };
 
-std::vector<Edge> edges;
-std::vector<std::vector<int> > g;
+// struct Network
+// {
+//     int n;             
+//     std::vector<std::vector<Edge> > g;    
+//     std::vector<int> phi;       
+//     std::vector<int> distance;          
+//     std::vector<int> parent; 
+//     std::vector<bool> used;        
 
-int cost = 0;
-int n, m, k;
-int s, t;
+//     Network(int n) : n(n), g(n), phi(n), distance(n), used(n), parent(n) {}
 
-void addEdge (int from, int to, int capasity, int cost, int id) {
-    g[from].push_back(edges.size());
-    edges.push_back(Edge (from, to, capasity, cost, id));
-    g[to].push_back(edges.size());
-    edges.push_back(Edge (to, from, 0, -cost, id));
-}
+//     void addEdge(int from, int to, int cap, int cost, int id)
+//     {
+//         g[from].push_back(Edge(to,   g[to]  .size(),     cap, cost, id));
+//         g[to]  .push_back(Edge(from, g[from].size() - 1, 0,  -cost, id));
+//     }
 
-std::vector<int> dinicDistance;
-std::vector<int> dinicVPos;
+//     std::pair<int, int> minCostMaxFlow (int source, int sink)
+//     {
+//         std::fill(phi.begin(), phi.end(), INF);
 
-bool dinicBfs ()
-{
-    std::queue<int> queue;
+//         phi[source] = 0;
+//         for(int i = 0; i < n; ++i) {
+//             for(int j = 0; j < n; ++j) {
+//                 if(phi[j] < INF) {
+//                     for(int k = 0; k < g[j].size(); ++k) {
+//                         if(g[j][k].cap > 0 && phi[g[j][k].to] > phi[j] + g[j][k].cost) {
+//                             phi[g[j][k].to] = phi[j] + g[j][k].cost;
+//                         }
+//                     }
+//                 }
+//             }
+//         }
 
-    for (auto& d_i : dinicDistance) {
-        d_i = INF;
-    }
-    dinicDistance[s] = 0;
-    queue.push (s);
-    while (!queue.empty() && dinicDistance[t] == INF) {
-        int from = queue.front();
-        queue.pop();
+//         int resultFlow = 0, resultCost = 0;
 
-        for (int i = 0; i < g[from].size(); ++i) {
-            Edge e = edges[g[from][i]];
-            if (dinicDistance[e.to] == INF && e.flow < e.capasity) {
-                dinicDistance[e.to] = dinicDistance[e.from] + 1;
-                queue.push (e.to);
-            }
-        }
-    }
-    return dinicDistance[t] != INF;
-} 
+//         while (true)
+//         {
+//             std::fill(used.begin(), used.end(), false);
+//             std::fill(distance.begin(), distance.end(), INF);
 
-int dinicDfs (int v, int flow)
-{
-    if (flow == 0 || v == t) return flow;
-    for (; dinicVPos[v] < g[v].size(); ++dinicVPos[v]) {
-        Edge e = edges[g[v][dinicVPos[v]]];
+//             distance[source] = 0;
 
-        if (dinicDistance[e.to] == dinicDistance[v] + 1) {
+//             while (true)
+//             {
+//                 int from = -1;
 
-            int pushed = dinicDfs(e.to, std::min(flow, e.capasity - e.flow));
+//                 for(int i = 0; i < n; ++i) {
+//                     if(!used[i] && distance[i] < INF && (from < 0 || distance[from] > distance[i])) {
+//                         from = i;
+//                     }
+//                 }
 
-            if (pushed > 0) {
-                edges[g[v][dinicVPos[v]]  ].flow += pushed;
-                edges[g[v][dinicVPos[v]]^1].flow -= pushed;
-                cost += edges[g[v][dinicVPos[v]]].cost * pushed;
+//                 if(from < 0) break;
 
-                return pushed;
-            }
-        }
-    }
-    return 0;
-}
+//                 used[from] = 1;
 
-int dinic ()
-{
-    int maxFlow = 0;
-    while (dinicBfs()) {
-        
-        for (int i = 0; i < n; ++i) {
-            dinicVPos[i] = 0;
-        }
-        while (int pushed = dinicDfs (s, INF)) {
-            maxFlow += pushed;
-        }
-    }
-    return maxFlow;
-}
+//                 for(int i = 0; i < g[from].size(); ++i) {
+//                     if(g[from][i].cap > g[from][i].flow) {
+//                         int to = g[from][i].to;
+//                         if(!used[to] && distance[to] > distance[from] + g[from][i].cost + phi[from] - phi[to]) {
+//                             distance[to] = distance[from] + g[from][i].cost + phi[from] - phi[to];
+//                             parent[to] = g[from][i].back;
+//                         }
+//                     }
+//                 }
+//             }
 
-void minCostMaxFlow () {
+//             if(!used[sink]) break;
 
-    bool found;
-    do {
-        found = false;
- 
-        std::vector<int> distance (n, INF);
-        std::vector<int> parent   (n, -1);
+//             for(int i = 0; i < n; ++i) {
+//                 phi[i] += used[i] ? distance[i] : distance[sink];
+//             }
 
-        for (int i = 0; i < n; ++i) {
-            if (distance[i] == INF) {
+//             int augFlow = INF, augCost = 0;
+//             for(int i = sink; i != source; )
+//             {
+//                 int to  = g[i][parent[i]].to;
+//                 int num = g[i][parent[i]].back;
 
-                distance[i] = 0;
-                std::vector<int> list, sList;
+//                 augFlow = std::min(augFlow, g[to][num].cap - g[to][num].flow);
+//                 augCost += g[to][num].cost;
 
-                list.push_back (i);
-                for (int r = 0; r < n && !list.empty(); ++r) {
-                    sList.clear();
-                    std::sort (list.begin(), list.end());
-                    list.erase (std::unique (list.begin(), list.end()), list.end());
+//                 i = to;
+//             }
 
-                    for (size_t j = 0; j < list.size(); ++j) {
-                        int v = list[j];
-                        for (size_t k = 0; k < g[v].size(); ++k) {
-                            Edge e = edges[g[v][k]];
+//             for(int i = sink; i != source; )
+//             {
+//                 int to  = g[i][parent[i]].to;
+//                 int num = g[i][parent[i]].back;
 
-                            if (e.flow < e.capasity && distance[v] + e.cost < distance[e.to]) {
-                                distance[e.to] = distance[v] + e.cost;
-                                parent[e.to] = g[v][k];
-                                sList.push_back (e.to);
-                            }
-                                
-                        }
-                    }
-                    std::swap (list, sList);
-                }
-                
-                if (!list.empty()) {
-                    int leaf = list[0];
+//                 g[to][num].flow += augFlow;
+//                 g[i][parent[i]].flow -= augFlow;
 
-                    std::vector<int> pathEdges;
-                    std::vector<int> path;
+//                 i = to;
+//             }
 
-                    int v;
-                    for (v = leaf; parent[v] != -1; v = edges[parent[v]].from) {
-                        auto pos = std::find (path.begin(), path.end(), v);
-                        if (pos == path.end()) {
-                            path.push_back (v);
-                            pathEdges.push_back (parent[v]);
-                        } else {
-                            path.erase (path.begin(), pos);
-                            pathEdges.erase (pathEdges.begin(), pathEdges.begin() + (pathEdges.size() - path.size()));
-                            break;
-                        }
-                    }
-                    if (parent[v] == -1) {
-                        auto pos = std::find (path.begin(), path.end(), v);
-                        if (pos == path.end()) {
-                            path.push_back (v);
-                            pathEdges.push_back (parent[v]);
-                        } else {
-                            path.erase (path.begin(), pos);
-                            pathEdges.erase (pathEdges.begin(), pathEdges.begin() + (pathEdges.size() - path.size()));
-                            break;
-                        }
-                    }
-                        
-                    for (size_t j = 0; j < pathEdges.size(); ++j) {
-                        edges[pathEdges[i]].flow += 1;
-                        edges[pathEdges[i]^1].flow -= 1;
-                        cost += edges[pathEdges[i]].cost;
-                    }
-                    found = true;
-                }
-            }
-        }
-    } while (found);
-}
+//             resultFlow += augFlow;
+//             resultCost += augFlow * augCost;
+//         }
 
-int lastWayCost = 0;
+//         return std::make_pair(resultFlow, resultCost);
+//     }
+// };
 
-std::vector<int> findWay() {
-    int s = 0, t = n - 1;
-    lastWayCost = 0;
+// int n, m, k;
 
-    std::vector<int> ans;
+// std::vector<int> findWay(Network &network, int source, int sink) {
+//     std::vector<int> ans;
 
-    std::vector<int> color    (n, 0);
-    std::vector<int> distance (n, INF);
-    std::vector<int> parent   (n);
+//     std::vector<int> color    (n, 0);
+//     std::vector<int> distance (n, INF);
+//     std::vector<int> parent   (n);
 
-    distance[s] = 0;
-    for (int cnt = 0; cnt < n; ++cnt) {
-        int v = t;
-        for (int i = 0; i < n; ++i) {
-            if (color[i] == 0 && distance[i] < distance[v]) {
-                v = i;
-            }
-        }
+//     distance[source] = 0;
+//     while (color[sink] == 0) {
+//         int v = sink;
+//         for (int i = 0; i < n; ++i) {
+//             if (color[i] == 0 && distance[i] < distance[v]) {
+//                 v = i;
+//             }
+//         }
 
-        color[v] = 1;
-        for (int i = 0; i < g[v].size(); ++i) {
-            Edge e = edges[g[v][i]];
-            if (e.flow > 0 && e.flow == e.capasity && distance[v] + e.cost < distance[e.to]) {
-                distance[e.to] = distance[v] + e.cost;
-                parent[e.to] = g[v][i];
-            }
-        }
-    }
+//         if (color[v] == 1) break;
 
-    for (int v = t; v != s; v = edges[parent[v]].from) {
-        edges[parent[v]].flow--;
-        lastWayCost += edges[parent[v]].cost;
-        ans.push_back (edges[parent[v]].id);
-    }
-    std::reverse(ans.begin(), ans.end());
+//         color[v] = 1;
+//         for (int i = 0; i < network.g[v].size(); ++i) {
+//             Edge e = network.g[v][i];
+//             if (e.flow > 0 && distance[v] + e.cost < distance[e.to]) {
+//                 distance[e.to] = distance[v] + e.cost;
+//                 parent[e.to] = e.back;
+//             }
+//         }
+//     }
 
-    return ans;
-}
+//     for (int i = sink; i != source; ) {
+//         int to  = network.g[i][parent[i]].to;
+//         int num = network.g[i][parent[i]].back;
+
+//         ans.push_back (network.g[to][num].id);
+//         network.g[to][num].flow      -= 1;
+//         network.g[i][parent[i]].flow += 1;
+
+//         i = to;
+//     }
+//     std::reverse(ans.begin(), ans.end());
+
+//     return ans;
+// }
 
 int main() {
-    std::cin >> n >> m >> k;
-    s = 0, t = n - 1;
+    int a, b;
 
-    g.resize(n);
-    dinicVPos.resize(n, 0);
-    dinicDistance.resize(n, INF);
-    for (int i = 0; i < m; ++i) {
-        int from, to, cost;
-        std::cin >> from >> to >> cost;
-        from--; to--;
-        addEdge (from, to, 1, cost, i + 1);
-        addEdge (to, from, 1, cost, i + 1);
-    }
+    a = 100;
+    //a = &b;
+    //a = *b;
+    //&a = b;
+    //&a = &b;
+    //&a = *b;
+    //*a = b;
+    //*a = *b;
+    //*a = &b;
 
-    if (dinic() < k) {
-        std::cout << "-1\n";
-    } else {
-        int sumCost = 0;
-        minCostMaxFlow();
-        std::vector<std::vector<int> > ways;
-        for (int i = 0; i < k; ++i) {
-            ways.push_back(findWay());
-            sumCost += lastWayCost;
-        }
+    //std::cin >> n >> m >> k;
+
+
+
+    // n++;
+    // Network network(n);
+
+    // network.addEdge (n - 1, 0, k, 0, 0);
+
+    // for (int i = 0; i < m; ++i) {
+    //     int from, to, cost;
+    //     std::cin >> from >> to >> cost;
+    //     from--; to--;
+    //     network.addEdge (from, to, 1, cost, i + 1);
+    //     network.addEdge (to, from, 1, cost, i + 1);
+    // }
+
+    // std::pair<int, int> ans = network.minCostMaxFlow (n - 1, n - 2);
+
+    // if (ans.first < k) {
+    //     std::cout << "-1\n";
+    // } else {
+    //     printf ("%.6lf\n", ((double)ans.second) / k);
         
-        printf ("%.6lf\n", ((double)sumCost) / k);
-        for (int i = 0; i < k; ++i) {
-            std::cout << ways[i].size();
-            for (int j = 0; j < ways[i].size(); ++j) {
-                std::cout << " " << ways[i][j];
-            }
-            std::cout << std::endl;
-        }
-    }
+    //     for (int i = 0; i < k; ++i) {
+    //         std::vector<int> way = findWay(network, n - 1, n - 2);
+
+    //         std::cout << way.size() - 1;
+    //         for (int i = 1; i < way.size(); ++i) {
+    //             std::cout << " " << way[i];
+    //         }
+    //         std::cout << "\n";
+    //     }
+    // }
     return 0;
 }
